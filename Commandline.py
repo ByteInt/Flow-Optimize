@@ -13,6 +13,7 @@ def print_hi(name):
 if __name__ == '__main__':
     apparatus = [[]]
     ans = 'y'
+    optimize_dimension = 0
     while ans.upper() == 'Y':
         print('Please input the apparatus type:')
         apparatus_type = input()
@@ -30,6 +31,7 @@ if __name__ == '__main__':
             print('Minimum of the optimizing range?')
             optimize_min = input()
             apparatus.append([apparatus_type, apparatus_port, working_mode, optimize_max, optimize_min])
+            optimize_dimension += 1
         elif working_mode.upper() == 'C':
             print('ID of chained device?')
             chained_ID = input()
@@ -51,6 +53,7 @@ if __name__ == '__main__':
     sample_points = input()
     print('sampling interval?')
     interval = input()
+    print('There are', optimize_dimension, 'values to optimize.')
 
 
 
