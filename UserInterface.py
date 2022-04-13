@@ -19,20 +19,47 @@ def add_apparatus():
     add_window.mainloop()
 
 
+def method_confirm():
+    wait_time = int(experiment_time.get())
+    interval_time = int(sample_interval.get())
+    sample_num = int(sample_points.get())
+    print('Sampling time:')
+    for i in range(sample_num):
+        print(wait_time + i * interval_time, 'mins')
+
+
 if __name__ == '__main__':
     root = Tk()
     root.title('Flow Control')
     root.geometry('800x600')
     notebook = ttk.Notebook(root)  # Notebook是选项卡容器
+    # 暂定的四个选项卡
     connection_frame = Frame(notebook)
     method_frame = Frame(notebook)
     parameters_frame = Frame(notebook)
     optimize_frame = Frame(notebook)
-    # 暂定的四个选项卡
+    # Connection选项卡内容
     add_device = Button(connection_frame, text='Add Device', command=add_apparatus)
     add_device.pack(padx=10, pady=10)
     device_list = Listbox(connection_frame)
     device_list.pack(padx=10, pady=10)
+
+    # Method选项卡内容
+    extime_label = Label(method_frame, text="Experiment time(min):")
+    experiment_time = Entry(method_frame)
+    sampinterval_label = Label(method_frame, text="Sampling interval(min):")
+    sample_interval = Entry(method_frame)
+    samppoints_label = Label(method_frame, text= "Sample points:")
+    sample_points = Spinbox(method_frame, increment=1)
+
+    extime_label.pack(padx=5, pady=5)
+    experiment_time.pack(padx=5, pady=5)
+    sampinterval_label.pack(padx=5, pady=5)
+    sample_interval.pack(padx=5, pady=5)
+    samppoints_label.pack(padx=5, pady=5)
+    sample_points.pack(padx=5, pady=5)
+    method_confirm = Button(method_frame, text="Confirm", command=method_confirm)
+    method_confirm.pack(padx=5, pady=5)
 
     notebook.add(connection_frame, text='Connection')
     notebook.add(method_frame, text='Method')
