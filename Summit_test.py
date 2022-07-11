@@ -10,6 +10,8 @@ exp = SnarBenchmark()
 transform = MultitoSingleObjective(
     exp.domain, expression="-sty/1e4+e_factor/100", maximize=False
 )
+for v in exp.domain.variables:
+    print(v.name)
 
 # Set up the strategy, passing in the optimisation domain and transform
 nm = NelderMead(exp.domain, transform=transform)
@@ -18,4 +20,4 @@ nm = NelderMead(exp.domain, transform=transform)
 r = Runner(
     strategy=nm, experiment=exp,max_iterations=50
 )
-r.run()
+# r.run()
