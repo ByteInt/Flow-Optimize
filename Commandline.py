@@ -1,4 +1,5 @@
 import pathlib
+import time
 import pkg_resources
 from summit.domain import *
 from summit.benchmarks import SnarBenchmark, ExperimentalEmulator
@@ -21,7 +22,7 @@ def initiate():
 
     # area for adding domain
     domain += CategoricalVariable(
-        name='1',
+        name='cate',
         description='2',
         levels=[
             'a',
@@ -29,7 +30,7 @@ def initiate():
         ]
     )
     domain += ContinuousVariable(
-        name='3',
+        name='conti',
         description='4',
         bounds=[0, 1]
     )
@@ -40,10 +41,18 @@ def initiate():
         is_objective=True
     )
 
-    row = []
+    row_1 = ['NAME']
+    row_2 = ['TYPE']
     for variable in domain.variables:
-        print(variable.name)
-        row.append(variable.name)
+        print(str(variable.name))
+        row_1.append(str(variable.name))
+        row_2.append('DATA')
+    print(row_1)
+    writer.writerow(row_1)
+    writer.writerow(row_2)
+    # Test data
+    writer.writerows([[0, 'a', 0, 0], [1, 'b', 0, 0]])
+    time.sleep(1)
 
     '''transform = MultitoSingleObjective(
         domain, expression = "", maximize = True
@@ -58,5 +67,5 @@ if __name__ == '__main__':
     exp = ExperimentalEmulator(model_name='Model', domain=domain, dataset=ds)
     exp.train(max_epochs=500, cv_fold=10, test_size=0.2)
     next_experiments = strategy.suggest_experiments(2)
-    print(next_experiments)
+    print(str(next_experiments))
 
