@@ -5,7 +5,7 @@ import pkg_resources
 import pathlib
 
 from summit import Runner
-from summit.strategies import Random, SOBO, MultitoSingleObjective, TSEMO, LHS
+from summit.strategies import Random, SOBO, MultitoSingleObjective, TSEMO, LHS, NelderMead, FullFactorial
 from summit.benchmarks import SnarBenchmark
 from summit.utils.dataset import DataSet
 import matplotlib.pyplot as plt
@@ -65,7 +65,7 @@ domain += ContinuousVariable(
     maximize=True,
 )
 # 确认实验变量和范围
-print(str(domain))
+print(str(domain.variables))
 
 # 已有实验数据所在的文件夹。实验数据按照要求保存为csv格式
 DATA_PATH = pathlib.Path(pkg_resources.resource_filename("summit", "benchmarks/data"))
@@ -87,8 +87,9 @@ transform = MultitoSingleObjective(
     exp.domain, expression="yld+0*ton", maximize=True
 )
 
-strategy = SOBO(exp.domain, transform = transform)
+strategy = FullFactorial(exp.domain, transform = transform)
 
-next_experiments = strategy.suggest_experiments(2)
+levels = dict()
+next_experiments = strategy.suggest_experiments()
 print(str(next_experiments))
 

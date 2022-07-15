@@ -6,7 +6,7 @@ import pkg_resources
 from summit.domain import *
 from summit.benchmarks import SnarBenchmark, ExperimentalEmulator
 from summit.utils.dataset import DataSet
-from summit.strategies import NelderMead, MultitoSingleObjective, SOBO, Random
+from summit.strategies import NelderMead, MultitoSingleObjective, SOBO, Random, FullFactorial, TSEMO
 import csv
 from summit.run import Runner
 
@@ -21,14 +21,14 @@ def initiate():
     domain = Domain()
 
     # area for adding domain
-    domain += CategoricalVariable(
+    '''domain += CategoricalVariable(
         name='cate',
         description='2',
         levels=[
             'a',
             'b'
         ]
-    )
+    )'''
     domain += ContinuousVariable(
         name='conti',
         description='4',
@@ -73,26 +73,13 @@ def generate_title():
         csvfile.close()
 
 
-def generate_data():
-    with open('experiment.csv', 'a', newline='') as csvfile:
-        writer = csv.writer(csvfile)
-        for i in range(100):
-            if i<50:
-                cate = 'a'
-            else:
-                cate = 'b'
-            randrow = [i, cate, random(), random(), 100*random()]
-            writer.writerow(randrow)
-        csvfile.close()
-
-
-def single_experiment(var1, var2, var3):
+def single_experiment(var1, var2):
     # Setting some equipments to var1, 2 and 3
     print('New experiment in progress with following parameters:\nvar1:' + var1
-          + '\nvar2:' + var2 + '\nvar3:' + var3)
+          + '\nvar2:' + var2)
     # Waiting time based on experiment settings
     time.sleep(1)
-    result = Detector.detect()
+    result = 50 * (float(var1) + float(var2))
     with open('experiment.csv', newline='') as csvfile:
         lines = csvfile.readlines()
         last_line = lines[-1]
@@ -104,7 +91,7 @@ def single_experiment(var1, var2, var3):
         csvfile.close()
     with open('experiment.csv', 'a', newline='') as csvfile:
         writer = csv.writer(csvfile)
-        next_row = [index, var1, var2, var3, result]
+        next_row = [index, var1, var2, result]
         writer.writerow(next_row)
         csvfile.close()
 
@@ -113,19 +100,28 @@ if __name__ == '__main__':
     initiate()
     # pre-experiments: data are given by random
     strategy = Random(domain)
-    for i in range(10):
+    for i in range(4):
         next_experiments = str(strategy.suggest_experiments(1)).split('\n')[2].split()
         print(str(next_experiments))
-        single_experiment(next_experiments[1], next_experiments[2], next_experiments[3])
+        single_experiment(next_experiments[1], next_experiments[2])
     data_path = pathlib.Path()
     # new experiments: data are given by an optimizing strategy
-    strategy = SOBO(domain)
-    for i in range(20):
-        next_experiments = str(strategy.suggest_experiments(1)).split('\n')[2].split()
-        print(str(next_experiments))
-        single_experiment(next_experiments[1], next_experiments[2], next_experiments[3])
-        ds = DataSet.read_csv(data_path / 'experiment.csv')
+    ds = DataSet.read_csv(data_path / 'experiment.csv')
+    strategy = NelderMead(domain)
+    # Seems that NelderMead is not available as SOBO
+    # The NelderMead method would sometimes report:
+    # TypeError: '>' not supported between instances of 'float' and 'NoneType'
+    # FullFactorial only gives boundary suggestions
+    levels = dict(conti=[0, 1], conti_2 = [0, 1])
+    for i in range(50):
         exp = ExperimentalEmulator(model_name='Model', domain=domain, dataset=ds)
-        exp.train(max_epochs=50, cv_fold=1, test_size=0.2)
-
-
+        experiments = strategy.suggest_experiments()
+        for j in range(len(str(experiments).split('\n')) - 2):
+            next_experiments = str(experiments).split('\n')[j + 2].split()
+            print(next_experiments)
+            single_experiment(next_experiments[1], next_experiments[2])
+        '''next_experiment = str(experiments).split('\n')[2].split()
+        print(next_experiment)
+        single_experiment(next_experiment[1], next_experiment[2])'''
+        ds = DataSet.read_csv(data_path / 'experiment.csv')
+        # exp.train(max_epochs=500)
